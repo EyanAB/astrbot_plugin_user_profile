@@ -33,6 +33,7 @@
 cd /path/to/AstrBot/data/plugins
 git clone https://github.com/你的用户名/astrbot_plugin_user_profile.git
 # 重启 AstrBot 或重载插件
+
 ## 📋 指令速查
 
 | 指令 | 说明 | 权限 |
