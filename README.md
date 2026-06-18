@@ -33,3 +33,25 @@
 cd /path/to/AstrBot/data/plugins
 git clone https://github.com/你的用户名/astrbot_plugin_user_profile.git
 # 重启 AstrBot 或重载插件
+## 📋 指令速查
+
+| 指令 | 说明 | 权限 |
+|------|------|------|
+| `/profile` | 查看自己的画像摘要 | 所有人 |
+| `/profile @某人` | 查看指定用户的画像 | 管理员 |
+| `/profile all` | 查看群内所有用户画像 | 管理员 |
+| `/tag 分类=值` | 设置自己的标签 | 所有人 |
+| `/tag 分类=值 @某人` | 为他人设置标签 | 管理员 |
+| `/untag 分类` | 删除自己的某个分类 | 所有人 |
+| `/addcat 分类名` | 添加全局维度 | 管理员 |
+| `/delcat 分类名` | 删除全局维度 | 管理员 |
+| `/listcat` | 列出全局维度 | 所有人 |
+| `/addrules 正则 分类` | 添加学习规则 | 管理员 |
+| `/delrule 分类` | 删除规则 | 管理员 |
+| `/listrules` | 列出学习规则 | 所有人 |
+| `/setlimit 参数 值` | 动态调整参数 | 管理员 |
+| `/injectnow` | 强制注入画像 | 所有人 |
+| `/admin add/remove/list` | 管理管理员 | 管理员 |
+| `/export @某人` | 导出画像JSON | 管理员 |
+| `/import <JSON>` | 导入画像JSON | 管理员 |
+| `/profile_help` | 详细帮助 | 所有人 |
