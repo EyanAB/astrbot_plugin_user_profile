@@ -1,0 +1,91 @@
+{
+    "prefix": {
+        "description": "指令前缀，避免与其他插件冲突",
+        "type": "string",
+        "default": ""
+    },
+    "max_tags": {
+        "description": "每人每场景最大标签分类数",
+        "type": "int",
+        "default": 8
+    },
+    "value_max_len": {
+        "description": "标签值最大长度",
+        "type": "int",
+        "default": 10
+    },
+    "inject_cooldown": {
+        "description": "注入冷却时间（秒）",
+        "type": "int",
+        "default": 600
+    },
+    "freq_upgrade_ratio": {
+        "description": "频率升级倍数",
+        "type": "float",
+        "default": 1.5
+    },
+    "data_dir": {
+        "description": "数据存储目录（可改为其他盘路径）",
+        "type": "string",
+        "default": "data/user_profiles"
+    },
+    "enable_ai_optimize": {
+        "description": "启用 AI 优化",
+        "type": "bool",
+        "default": false
+    },
+    "ai_optimize_mode": {
+        "description": "优化模式：notify / semi_auto / auto",
+        "type": "string",
+        "default": "notify",
+        "options": ["notify", "semi_auto", "auto"]
+    },
+    "ai_optimize_prompt": {
+        "description": "AI 优化提示词模板",
+        "type": "text",
+        "default": "请根据用户画像和最近对话，提出优化建议，并以 JSON 格式返回：{\"category\": \"分类\", \"suggest\": \"建议值\", \"confidence\": 0.8}"
+    },
+    "ai_min_confidence": {
+        "description": "半自动模式最低置信度",
+        "type": "float",
+        "default": 0.7
+    },
+    "ai_optimize_cooldown": {
+        "description": "AI 优化冷却时间（秒）",
+        "type": "int",
+        "default": 3600
+    },
+    "ai_optimize_min_changes": {
+        "description": "冷却时间内最小变更次数提前触发",
+        "type": "int",
+        "default": 3
+    },
+    "initial_admins": {
+        "description": "初始管理员 ID 列表",
+        "type": "list",
+        "default": []
+    },
+    "openai_api_key": {
+        "description": "（可选）用于 AI 优化的 OpenAI 密钥",
+        "type": "string",
+        "default": "",
+        "invisible": false
+    },
+    "openai_base_url": {
+        "description": "（可选）自定义 API 地址",
+        "type": "string",
+        "default": "",
+        "invisible": false
+    },
+    "openai_model": {
+        "description": "使用的模型",
+        "type": "string",
+        "default": "gpt-3.5-turbo",
+        "invisible": false
+    },
+    "auto_learn_enabled": {
+        "description": "是否启用自动学习",
+        "type": "bool",
+        "default": true
+    }
+}
