@@ -33,6 +33,14 @@ class UserProfilePlugin(Star):
         self.ai_optimizer = AIOptimizer(self.profile_manager, self.admin_manager, self.config, context)
         self.prefix = self.config.get('prefix', '')
 
+        # ========== 初始化预设分类（首次启动自动写入） ==========
+        existing_cats = self.storage.read_global_categories()
+        if not existing_cats:
+            preset = self.config.get('preset_categories', [])
+            if preset:
+                self.storage.write_global_categories(preset)
+                logger.info(f"已写入预设画像分类：{preset}")
+
     # ========== 辅助方法：统一获取用户ID和群组ID ==========
     def _get_user_id(self, event: AstrMessageEvent) -> str:
         return event.message_obj.sender.user_id
