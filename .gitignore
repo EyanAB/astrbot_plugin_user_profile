@@ -205,3 +205,11 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# 用户画像插件 - 运行时数据（隐私敏感）
+data/
+config.json
+*.local.json
+*.log
+*.tmp
+.cache/
