@@ -1,10 +1,10 @@
-name: astrb ot_plugin_user_profile # 插件唯一识别名，以 astrbot_plugin_ 前缀开头
-display_name: 用户画像 # 用于展示的名字，可以是方便人类阅读的名字（需要版本 >= v4.5.0，低版本不会报错，请放心填写）
-desc: 为 AstrBot 提供长期记忆的用户画像系统，支持群聊/私聊隔离、自动学习、AI 优化等。 # 插件简短描述
-version: v1.0.0 # 插件版本号。格式：v1.1.1 或者 v1.1
-author: Soulter # 恶言
-repo: https://github.com/EyanAB/astrbot_plugin_user_profile.git # 插件的仓库地址
-astrbot_version: ">=4.16,<5"
+name: astrbot_plugin_user_profile
+display_name: 用户画像
+desc: 为 AstrBot 提供长期记忆的用户画像系统，支持群聊/私聊隔离、自动学习、AI 优化等。
+version: v1.0.0
+author: Soulter
+repo: https://github.com/EyanAB/astrbot_plugin_user_profile.git
+astrbot_version: ">=4.0.0"   # 修正为合法版本范围
 support_platforms:
   - aiocqhttp
   - telegram
