@@ -31,9 +31,8 @@ class UserProfilePlugin(Star):
         self.rule_engine = RuleEngine(self.storage)
         self.admin_manager = AdminManager(self.storage, self.config.get('initial_admins', []))
         self.ai_optimizer = AIOptimizer(self.profile_manager, self.admin_manager, self.config, context)
-        self.prefix = self.config.get('prefix', '')
 
-        # ========== 初始化预设分类（首次启动自动写入） ==========
+        # 初始化预设分类
         existing_cats = self.storage.read_global_categories()
         if not existing_cats:
             preset = self.config.get('preset_categories', [])
@@ -41,7 +40,59 @@ class UserProfilePlugin(Star):
                 self.storage.write_global_categories(preset)
                 logger.info(f"已写入预设画像分类：{preset}")
 
-    # ========== 辅助方法：统一获取用户ID和群组ID ==========
+        # 初始化预设规则（大幅扩展）
+        if self.config.get('preset_rules_enabled', True):
+            rules = self.storage.read_rules()
+            if not rules:
+                default_rules = [
+                    # ---- 家乡 ----
+                    {"pattern": r"老家(?:是|在|位于)?\s*(.+)", "category": "家乡"},
+                    {"pattern": r"家(?:乡|是|在)?\s*(.+)", "category": "家乡"},
+                    {"pattern": r"出生(?:在|于)?\s*(.+)", "category": "家乡"},
+                    {"pattern": r"来自\s*(.+)", "category": "家乡"},
+                    {"pattern": r"我(?:是|来自|老家在)\s*(.+)", "category": "家乡"},
+                    # ---- 职业/身份 ----
+                    {"pattern": r"我是(.+)工程师", "category": "职业"},
+                    {"pattern": r"我是(.+)设计师", "category": "职业"},
+                    {"pattern": r"我是(.+)老师", "category": "职业"},
+                    {"pattern": r"我是(.+)医生", "category": "职业"},
+                    {"pattern": r"我是(.+)律师", "category": "职业"},
+                    {"pattern": r"我是(.+)经理", "category": "职业"},
+                    {"pattern": r"我是(.+)总监", "category": "职业"},
+                    {"pattern": r"我是(.+)开发", "category": "职业"},
+                    {"pattern": r"我是(.+)运营", "category": "职业"},
+                    {"pattern": r"我是(.+)产品", "category": "职业"},
+                    {"pattern": r"我(?:是|做|干|从事)\s*(.+?)(?:的)?$", "category": "职业"},
+                    {"pattern": r"职业(?:是|为)\s*(.+)", "category": "职业"},
+                    {"pattern": r"岗位(?:是|为)\s*(.+)", "category": "职业"},
+                    # ---- 爱好 ----
+                    {"pattern": r"我(?:喜欢|爱|爱好|热衷|沉迷|痴迷)\s*(.+)", "category": "爱好"},
+                    {"pattern": r"喜欢\s*(.+)", "category": "爱好"},
+                    {"pattern": r"爱好(?:是|为)\s*(.+)", "category": "爱好"},
+                    # ---- 年龄 ----
+                    {"pattern": r"我(?:今年|现在|已经)\s*(\d+)\s*岁", "category": "年龄"},
+                    {"pattern": r"年龄(?:是|为)\s*(\d+)\s*岁", "category": "年龄"},
+                    {"pattern": r"(\d+)\s*岁", "category": "年龄"},
+                    # ---- 专业 ----
+                    {"pattern": r"专业(?:是|为|学)\s*(.+)", "category": "专业"},
+                    {"pattern": r"我学(?:的是|习)\s*(.+)", "category": "专业"},
+                    {"pattern": r"主修\s*(.+)", "category": "专业"},
+                    # ---- 技能 ----
+                    {"pattern": r"我(?:会|擅长|精通|掌握)\s*(.+)", "category": "技能"},
+                    {"pattern": r"(?:会|擅长|精通)\s*(.+)", "category": "技能"},
+                    # ---- 学校 ----
+                    {"pattern": r"(?:毕业|就读|来自|在)\s*(.+?(?:大学|学院|中学|小学))", "category": "学校"},
+                    # ---- 公司 ----
+                    {"pattern": r"(?:工作|任职|在)\s*(.+?(?:公司|集团|科技|有限))", "category": "公司"},
+                    # ---- 性格 ----
+                    {"pattern": r"我(?:比较|性格|挺|很)\s*(.+?)(?:的)?$", "category": "性格"},
+                    {"pattern": r"性格(?:是|为)\s*(.+)", "category": "性格"},
+                ]
+                for rule in default_rules:
+                    self.rule_engine.add_rule(rule["pattern"], rule["category"])
+                logger.info(f"已添加 {len(default_rules)} 条默认自动学习规则")
+
+    # ========== 辅助方法 ==========
     def _get_user_id(self, event: AstrMessageEvent) -> str:
         return event.message_obj.sender.user_id
 
@@ -53,26 +104,30 @@ class UserProfilePlugin(Star):
     async def auto_learn(self, event: AstrMessageEvent):
         if event.message_str.startswith('/'):
             return
+        if not self.config.get('auto_learn_enabled', True):
+            return
 
         user_id = self._get_user_id(event)
         group_id = self._get_group_id(event)
         text = event.message_str
 
-        if not self.config.get('auto_learn_enabled', True):
-            return
-
+        # 规则匹配（始终执行）
         matches = self.rule_engine.match(text)
-        if not matches:
-            return
-
-        for category, value in matches:
-            self.profile_manager.add_secondary(user_id, group_id, category, value)
+        if matches:
+            for category, value in matches:
+                self.profile_manager.add_secondary(user_id, group_id, category, value)
+                self.ai_optimizer.on_change(user_id, group_id)
             self.ai_optimizer.on_change(user_id, group_id)
 
-        if matches:
-            asyncio.create_task(self.ai_optimizer.check_and_optimize(user_id, group_id, text))
+        # AI 主动分析（可选）
+        if self.config.get('enable_ai_optimize', False):
+            asyncio.create_task(
+                self.ai_optimizer.check_and_optimize(
+                    user_id, group_id, text, event.unified_msg_origin
+                )
+            )
 
-    # ========== 画像注入（LLM 请求前）==========
+    # ========== 画像注入 ==========
     @filter.on_llm_request()
     async def inject_profile_before_llm(self, event: AstrMessageEvent, req: ProviderRequest):
         user_id = self._get_user_id(event)
@@ -85,7 +140,6 @@ class UserProfilePlugin(Star):
         if not profile:
             return
 
-        # 使用 extra_user_content_parts 追加动态内容（推荐）
         req.extra_user_content_parts.append(
             TextPart(text=f"\n[用户画像] {profile}")
         )
@@ -198,7 +252,10 @@ class UserProfilePlugin(Star):
         success = self.profile_manager.set_tag(target_user, group_id, category, value)
         if success:
             yield event.plain_result(f"已设置 {category} = {value}")
-            await self.ai_optimizer.check_and_optimize(target_user, group_id, event.message_str)
+            if self.config.get('enable_ai_optimize', False):
+                await self.ai_optimizer.check_and_optimize(
+                    target_user, group_id, event.message_str, event.unified_msg_origin
+                )
         else:
             yield event.plain_result("设置失败，请检查值长度或分类名称")
 
@@ -422,6 +479,5 @@ class UserProfilePlugin(Star):
     def mark_injected(self, user_id: str, group_id: str) -> None:
         self.profile_manager.mark_injected(user_id, group_id)
 
-    # ========== 生命周期 ==========
     async def terminate(self):
         logger.info("用户画像插件已卸载")
