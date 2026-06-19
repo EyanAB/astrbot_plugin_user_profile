@@ -3,7 +3,7 @@ https://img.shields.io/badge/AstrBot-Plugin-blue
 https://img.shields.io/badge/Python-3.10+-green
 https://img.shields.io/badge/License-MIT-yellow
 
-为 AstrBot 提供长期记忆的用户画像系统。支持群聊/私聊隔离、自动学习、AI 优化、LLM 上下文注入等功能，让您的 AI 助手更懂用户。
+为 AstrBot 提供长期记忆的用户画像系统。支持群聊/私聊隔离、自动学习、AI 优化、LLM 上下文注入等功能，可选择开启AI辅助优化,默认为关闭状态,不开启则启用规则筛选,用户可根据指令自行增减修改
 
 ✨ 特性
 📌 多维度画像 – 支持自定义分类（职业、爱好、性格等），每个分类包含主值、备选（带频率）和历史值。
